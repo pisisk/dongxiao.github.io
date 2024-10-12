@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动态立体特效</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #282c34;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        .scene {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            animation: rotate-scene 10s infinite linear;
+        }
+
+        .cube {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transform: scale(1);
+            transition: transform 0.5s;
+        }
+
+        .cube div {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: #fff;
+            opacity: 0.9;
+        }
+
+        .front  { transform: translateZ(150px); background-color: #ff5733; }
+        .back   { transform: rotateY(180deg) translateZ(150px); background-color: #33ff57; }
+        .right  { transform: rotateY(90deg) translateZ(150px); background-color: #3357ff; }
+        .left   { transform: rotateY(-90deg) translateZ(150px); background-color: #f1c40f; }
+        .top    { transform: rotateX(90deg) translateZ(150px); background-color: #8e44ad; }
+        .bottom { transform: rotateX(-90deg) translateZ(150px); background-color: #e67e22; }
+
+        @keyframes rotate-scene {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        .cube:hover {
+            transform: scale(1.1);
+            animation: none; /* 鼠标悬停时停止旋转 */
+            transition: transform 0.5s;
+        }
+
+        .light {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            transform: translateZ(-50px);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+            animation: light-flicker 1.5s infinite alternate;
+        }
+
+        @keyframes light-flicker {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .button {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #34495e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #2c3e50;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="scene">
+        <div class="cube">
+            <div class="front"></div>
+            <div class="back"></div>
+            <div class="right"></div>
+            <div class="left"></div>
+            <div class="top"></div>
+            <div class="bottom"></div>
+        </div>
+        <div class="light"></div>
+    </div>
+    <button class="button" onclick="changeColors()">更换颜色</button>
+
+    <script>
+        function changeColors() {
+            const colors = [
+                '#ff5733', '#33ff57', '#3357ff', 
+                '#f1c40f', '#8e44ad', '#e67e22'
+            ];
+            const cubeFaces = document.querySelectorAll('.cube div');
+            cubeFaces.forEach((face) => {
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                face.style.backgroundColor = randomColor;
+            });
+        }
+
+        // 添加交互效果
+        const scene = document.querySelector('.scene');
+        let tiltX = 0;
+        let tiltY = 0;
+
+        scene.addEventListener('mousemove', (e) => {
+            const { clientWidth, clientHeight } = scene;
+            const xPercentage = (e.clientX / clientWidth) - 0.5;
+            const yPercentage = (e.clientY / clientHeight) - 0.5;
+            tiltX = yPercentage * 20;  // 控制X轴倾斜
+            tiltY = -xPercentage * 20;  // 控制Y轴倾斜
+            scene.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+        });
+
+        scene.addEventListener('mouseleave', () => {
+            scene.style.transform = 'rotateX(0) rotateY(0)';  // 鼠标离开时重置
+        });
+    </script>
+</body>
+</html>
